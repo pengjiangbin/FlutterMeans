@@ -1,26 +1,19 @@
 import 'package:dio/dio.dart';
 
-class HttpManager{
+class HttpManager {
+  static Map<String, dynamic> dios;
 
-  static Dio _dio;
-
-  static final String _baseUrl='http://v.juhe.cn/';
-
-  static doPost (String path,Map<String,dynamic> params) async{
-    return await get().post(path,data:params);
-  }
-
-  static doGet(String path,Map<String,dynamic> params) async{
-    return await get().get(path,queryParameters:params);
-  }
-
-  static Dio get(){
-    if(_dio==null){
-      _dio=new Dio();
-      _dio.options.baseUrl=_baseUrl;
-      _dio.options.connectTimeout=5000;
-      _dio.options.receiveTimeout=5000;
+  static Dio get(String baseUrl) {
+    if (dios == null) {
+      dios = Map();
     }
-    return _dio;
+    if (!dios.containsKey(baseUrl)) {
+      Dio dio = new Dio();
+      dio.options.baseUrl = baseUrl;
+      dio.options.connectTimeout = 5000;
+      dio.options.receiveTimeout = 5000;
+      dios[baseUrl] = dio;
+    }
+    return dios[baseUrl];
   }
 }

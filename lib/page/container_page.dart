@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_live/page/essence_page.dart';
 import 'package:flutter_live/page/home_page.dart';
+import 'package:flutter_live/page/map_page.dart';
 import 'package:flutter_live/page/welfare_page.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ContainerPage extends StatefulWidget {
   @override
@@ -10,6 +12,7 @@ class ContainerPage extends StatefulWidget {
 }
 
 class _ContainerPageState extends State<ContainerPage> {
+  int currentMillis = 0;
   final titles = ['新闻', '精选', '发现'];
   int _tabIndex = 0;
   var _body;
@@ -19,7 +22,7 @@ class _ContainerPageState extends State<ContainerPage> {
   @override
   void initState() {
     super.initState();
-    pages = [HomePage(), EssencePage(), WelfarePage()];
+    pages = [HomePage(), EssencePage(), MapPage()];
     if (tabImages == null) {
       tabImages = [
         [
@@ -68,23 +71,32 @@ class _ContainerPageState extends State<ContainerPage> {
       children: pages,
       index: _tabIndex,
     );
-    return Scaffold(
-      appBar: AppBar(
-          title: Text(titles[_tabIndex], style: TextStyle(color: Colors.white)),
-          centerTitle: true),
-      body: _body,
-      bottomNavigationBar: CupertinoTabBar(
-          items: [
-            _buildNavigationItem(getTabIcon(0), getTabTitle(0)),
-            _buildNavigationItem(getTabIcon(1), getTabTitle(1)),
-            _buildNavigationItem(getTabIcon(2), getTabTitle(2))
-          ],
-          currentIndex: _tabIndex,
-          onTap: (index) {
-            setState(() {
-              _tabIndex = index;
-            });
-          }),
+    return WillPopScope(
+      onWillPop: () {
+        if (DateTime.now().millisecondsSinceEpoch - currentMillis > 2000) {
+          currentMillis = DateTime.now().millisecondsSinceEpoch;
+          Fluttertoast.showToast(
+              msg: '再按一次退出应用', toastLength: Toast.LENGTH_SHORT);
+          return Future.value(false);
+        } else {
+          return Future.value(true);
+        }
+      },
+      child: Scaffold(
+        body: _body,
+        bottomNavigationBar: CupertinoTabBar(
+            items: [
+              _buildNavigationItem(getTabIcon(0), getTabTitle(0)),
+              _buildNavigationItem(getTabIcon(1), getTabTitle(1)),
+              _buildNavigationItem(getTabIcon(2), getTabTitle(2))
+            ],
+            currentIndex: _tabIndex,
+            onTap: (index) {
+              setState(() {
+                _tabIndex = index;
+              });
+            }),
+      ),
     );
   }
 }
